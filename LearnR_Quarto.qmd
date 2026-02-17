@@ -1,0 +1,38 @@
+---
+title: "Learn_R_workspace"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+##### Section 1: What is R?
+
+### A free open-source software capable of statistical analysis and graphical displays.
+
+## R programming language is case-sensitive which means L and l are read as different characters. R is a fancy calculator. Before we get started read up on R shortcuts. https://support.posit.co/hc/en-us/articles/200711853-Keyboard-Shortcuts-in-the-RStudio-IDE 
+## Comparable Software Programming to R ##
+### MATLAB - Programming language with statistical features ### 
+### Mathematica - A software package with statistical feature ###
+### SAS - Comprehensible statistical software package ###
+### SPSS (Statistical Package for Social Sciences) - Comprehensible statistical package ###
+### Python - Programming language with data science packages ###
