@@ -29,7 +29,7 @@ The `echo: false` option disables the printing of code (only output is displayed
 
 ### A free open-source software capable of statistical analysis and graphical displays.
 
-R programming language is case-sensitive which means L and l are read as different characters. R is a fancy calculator. Before we get started read up on R shortcuts. https://support.posit.co/hc/en-us/articles/200711853-Keyboard-Shortcuts-in-the-RStudio-IDE
+## R programming language is case-sensitive which means L and l are read as different characters. R is a fancy calculator. Before we get started read up on R shortcuts. https://support.posit.co/hc/en-us/articles/200711853-Keyboard-Shortcuts-in-the-RStudio-IDE
 
 ## Comparable Software Programming to R
 
@@ -42,3 +42,53 @@ SAS - Comprehensible statistical software package
 SPSS (Statistical Package for Social Sciences) - Comprehensible statistical package
 
 Python - Programming language with data science packages
+
+```{python}
+import pandas as pd
+
+print("hello world")
+```
+
+
+```{r}
+print("hello world")
+```
+
+#### Section 2: Simple uses for R? ####
+```{r}
+9+12
+```
+
+```{r}
+43*34+(4/3)-12
+```
+
+```{r}
+print(29+1)
+```
+
+## you can do some basic stats
+```{r}
+mean(a)
+```
+
+```{r}
+sd(a)
+```
+
+#### Section 3: Strengths of R in creating indices ####
+You can create a little index
+```{r}
+a <- c(2,5,65,43,3)
+```
+
+```{r}
+b <- c(1:5)
+b <- as.numeric(b)
+```
+
+### creating a matrix 
+```{r}
+c <- rbind(a,b)
+d <- cbind(a,b)
+```
