@@ -29,10 +29,16 @@ The `echo: false` option disables the printing of code (only output is displayed
 
 ### A free open-source software capable of statistical analysis and graphical displays.
 
-## R programming language is case-sensitive which means L and l are read as different characters. R is a fancy calculator. Before we get started read up on R shortcuts. https://support.posit.co/hc/en-us/articles/200711853-Keyboard-Shortcuts-in-the-RStudio-IDE 
-## Comparable Software Programming to R ##
-### MATLAB - Programming language with statistical features ### 
-### Mathematica - A software package with statistical feature ###
-### SAS - Comprehensible statistical software package ###
-### SPSS (Statistical Package for Social Sciences) - Comprehensible statistical package ###
-### Python - Programming language with data science packages ###
+R programming language is case-sensitive which means L and l are read as different characters. R is a fancy calculator. Before we get started read up on R shortcuts. https://support.posit.co/hc/en-us/articles/200711853-Keyboard-Shortcuts-in-the-RStudio-IDE
+
+## Comparable Software Programming to R
+
+MATLAB - Programming language with statistical features
+
+Mathematica - A software package with statistical feature
+
+SAS - Comprehensible statistical software package
+
+SPSS (Statistical Package for Social Sciences) - Comprehensible statistical package
+
+Python - Programming language with data science packages
