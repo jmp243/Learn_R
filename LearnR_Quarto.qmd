@@ -43,10 +43,31 @@ SPSS (Statistical Package for Social Sciences) - Comprehensible statistical pack
 
 Python - Programming language with data science packages
 
+
 ```{python}
 import pandas as pd
 
+name = "Jane Doe"
+num_samples = 150
+temperature = 37.5
+flag = True
+
+# List - ordered collection
+measurements = [23.1, 24.5, 22.8, 23.9, 24.2]
+patient_ids = ["P001", "P002", "P003"]
+
+# Dictionary - key-value pairs
+patient_data = {
+    "id": "P001",
+    "age": 34,
+    "group": "treatment"
+}
+
+```
+
+```{python}
 print("hello world")
+
 ```
 
 
@@ -67,6 +88,13 @@ print("hello world")
 print(29+1)
 ```
 
+#### Section 3: Strengths of R in creating indices ####
+You can create a little index (or vertex)
+```{r}
+a <- c(2,5,65,43,3)
+```
+
+
 ## you can do some basic stats
 ```{r}
 mean(a)
@@ -76,19 +104,59 @@ mean(a)
 sd(a)
 ```
 
-#### Section 3: Strengths of R in creating indices ####
-You can create a little index
-```{r}
-a <- c(2,5,65,43,3)
-```
-
+# in R, integers are only whole numbers
 ```{r}
 b <- c(1:5)
-b <- as.numeric(b)
+#b <- as.numeric(b)
 ```
 
 ### creating a matrix 
 ```{r}
-c <- rbind(a,b)
-d <- cbind(a,b)
+c <- rbind(a,b) # row bind
+d <- cbind(a,b) # column bind
+```
+
+Read in data from this URL - https://raw.githubusercontent.com/jmp243/AZLA_2025_Data/refs/heads/main/fake_program_data.csv
+
+#### Section 4: Reading in Data ####
+## R users will say unusual things like Tidyverse and ggplot
+### often we are referring to libraries.
+
+```{r}
+library(readr)
+library(tidyverse)
+```
+
+# read in data using a function from the readr library
+```{r}
+data <- read.csv("https://raw.githubusercontent.com/jmp243/AZLA_2025_Data/refs/heads/main/fake_program_data.csv")
+
+```
+
+# Data analysis
+What type of data are we looking at?
+```{r}
+head(data)
+```
+
+
+```{r}
+cls <- sapply(data, class)
+cls <- as.data.frame(cls)
+cls
+```
+
+A summary is not too helpful when we only have one variable that is an integer.
+```{r}
+summary(data)
+```
+#### Section 5: Exploratory Data Analysis ####
+```{r}
+table(data$Branch.Location)
+```
+
+Look at other variables that way too.
+
+```{r}
+table(data$Target.Audience)
 ```
