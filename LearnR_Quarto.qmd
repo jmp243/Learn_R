@@ -176,3 +176,258 @@ data2 <- data_with_ref %>%
   mutate(Target.Audience = trimws(Target.Audience))
 ```
 
+Create a new column where age distinctions do not matter
+
+```{r}
+library(stringr)
+
+data2_newAudience <- data2 %>%
+  mutate(
+    # extract everything before " (" (a space + "(") or just "("
+    AudienceGroup = str_trim(
+       str_replace(Target.Audience, "\\s*\\(.*", "")
+    )
+  )
+```
+
+look at the time of day when events were happening
+
+### Dates are weird in R and many other computer languages 
+```{r}
+library(lubridate)
+# Using rowwise() to parse time
+
+data2_time <- data2_newAudience %>%
+  rowwise() %>%
+  mutate(
+    # Process one row at a time
+    time_parsed = {
+      time_str <- Time
+      if (is.na(time_str) || !is.character(time_str)) {
+        NA
+      } else if (grepl("AM|PM", time_str, ignore.case = TRUE)) {
+        parse_date_time(time_str, orders = c("I:M p", "H:M p"))
+      } else if (grepl(":", time_str, fixed = TRUE)) {
+        if (length(gregexpr(":", time_str)[[1]]) == 2) {
+          parse_date_time(time_str, orders = "H:M:S")
+        } else {
+          parse_date_time(time_str, orders = "H:M")
+        }
+      } else {
+        NA
+      }
+    }
+  ) %>%
+  ungroup() %>%
+  mutate(
+    time_24h = format(time_parsed, "%H:%M:%S"),
+    time_12h = format(time_parsed, "%I:%M:%S %p")
+  )
+
+```
+
+group into hours
+
+```{r}
+# group pits incidents by the hour
+
+# Group by hour
+data2_time$hour_group <- floor_date(data2_time$time_parsed, 
+                                               unit = "hour")
+data2_time$hour_label <- format(data2_time$hour_group, "%H:00")
+
+```
+
+# fix dates
+
+```{r}
+data2_time$Date <- as.Date(data2_time$Date,format = "%m/%d/%Y")
+```
+
+#### Section 6: Create Visualizations ####
+
+```{r}
+library(plotly)
+# Group by hour and count events
+hourly_summary <- data2_time %>%
+  select(hour_label, Branch.Location, Attendance, time_parsed, Date) %>%
+  # mutate(hour_group = floor_date(time_parsed, unit = "hour")) %>%
+  group_by(hour_label) %>%
+  summarize(
+    Total_Hourly_Count = n(),
+    # other aggregate metrics as needed
+  )
+
+```
+
+You can see which hours had the most events.
+
+```{r}
+hourly_location_date_summary <- data2_time %>%
+  select(hour_label, hour_group, Attendance, AudienceGroup, Branch.Location, time_parsed, Date) %>%
+  # Group by date as well as hour and location
+  group_by(Date, hour_label, AudienceGroup, Branch.Location, Attendance) %>%
+  summarize(
+    count = n(),
+    .groups = "drop"
+  ) %>%
+  # Create a wide format with Location combinations as columns
+  pivot_wider(
+    id_cols = c(Date, hour_label),  # Keep Date2 as an identifier column
+    names_from = AudienceGroup,
+    values_from = Attendance,
+    values_fill = 0
+  )
+```
+
+creating a visualization can be helpful.
+
+## group data by attendance
+
+```{r}
+# Load required libraries
+library(dplyr)
+library(plotly)
+
+# Aggregate attendance by hour_group and AudienceGroup
+plot_data <- data2_time %>%
+  mutate(hour_group = as.factor(hour_label)) %>%
+  group_by(hour_label, AudienceGroup) %>%
+  summarise(Total_Attendance = sum(Attendance, na.rm = TRUE), .groups = "drop")
+
+# Create interactive bar chart
+fig <- plot_ly(
+  data = plot_data,
+  x = ~hour_label,
+  y = ~Total_Attendance,
+  color = ~AudienceGroup,
+  type = "bar"
+)
+
+# Customize layout
+fig <- fig %>%
+  layout(
+    barmode = "stack",   # or "group" if you want side-by-side
+    xaxis = list(title = "Hour Label"),
+    yaxis = list(title = "Total Attendance"),
+    legend = list(title = list(text = "Audience Group"))
+  )
+
+fig
+```
+
+### change x-axis to dates
+
+```{r}
+# Load required libraries
+library(dplyr)
+library(plotly)
+
+# Aggregate attendance by hour_group and AudienceGroup
+data2_time <- data2_time %>% 
+  filter(Date >= 2025)
+
+plot_data <- data2_time %>%
+  mutate(hour_label = as.factor(hour_label)) %>%
+  group_by(Date, AudienceGroup) %>%
+  summarise(Total_Attendance = sum(Attendance, na.rm = TRUE), .groups = "drop")
+
+# Create interactive bar chart
+fig_date <- plot_ly(
+  data = plot_data,
+  x = ~Date,
+  y = ~Total_Attendance,
+  color = ~AudienceGroup,
+  type = "bar"
+)
+
+# Customize layout
+fig_date <- fig_date %>%
+  layout(
+    barmode = "stack",   # or "group" if you want side-by-side
+    xaxis = list(title = "Date"),
+    yaxis = list(title = "Total Attendance"),
+    legend = list(title = list(text = "Audience Group"))
+  )
+
+fig_date
+```
+
+## by branch type data graph
+
+```{r}
+# Aggregate attendance by hour_group and AudienceGroup
+branch_data <- data2_time %>%
+  group_by(hour_label, Branch.Location) %>%
+  summarise(Total_Attendance = sum(Attendance, na.rm = TRUE), .groups = "drop")
+
+# Create interactive bar chart
+fig2 <- plot_ly(
+  data = branch_data,
+  x = ~hour_label,
+  y = ~Total_Attendance,
+  color = ~Branch.Location,
+  type = "bar"
+)
+
+# Customize layout
+fig2 <- fig2 %>%
+  layout(
+    barmode = "stack",   # or "group" if you want side-by-side
+    xaxis = list(title = "Hour Label"),
+    yaxis = list(title = "Total Attendance"),
+    legend = list(title = list(text = "Branch Location"))
+  )
+
+fig2
+```
+
+## add a date slider
+
+```{r}
+# Prepare data: make sure Date is in Date format
+plot_data <- data2_time %>%
+  mutate(
+    Date = as.Date(Date),
+    hour_group = as.factor(hour_label)
+  ) %>%
+  group_by(Date, hour_label, AudienceGroup) %>%
+  summarise(Total_Attendance = sum(Attendance, na.rm = TRUE), .groups = "drop")
+
+# Build interactive bar chart
+fig <- plot_ly(
+  data = plot_data,
+  x = ~Date,
+  y = ~Total_Attendance,
+  color = ~AudienceGroup,
+  type = "bar",
+  hoverinfo = "text",
+  text = ~paste("Date:", Date,
+                "<br>Hour:", hour_label,
+                "<br>Audience:", AudienceGroup,
+                "<br>Attendance:", Total_Attendance)
+)
+
+# Layout with slider
+fig <- fig %>%
+  layout(
+    xaxis = list(
+      title = "Date",
+      rangeselector = list(
+        buttons = list(
+          list(count = 7, label = "1w", step = "day", stepmode = "backward"),
+          list(count = 1, label = "1m", step = "month", stepmode = "backward"),
+          list(step = "all")
+        )
+      ),
+      rangeslider = list(visible = TRUE),
+      type = "date"
+    ),
+    yaxis = list(title = "Total Attendance"),
+    barmode = "stack",
+    legend = list(title = list(text = "Audience Group"))
+  )
+
+fig
+```
+
