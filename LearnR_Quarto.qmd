@@ -160,3 +160,19 @@ Look at other variables that way too.
 ```{r}
 table(data$Target.Audience)
 ```
+Create an reference number for each event
+```{r}
+data_with_ref <- data %>%
+  mutate(Reference_Number = row_number()) # create a new dataframe and add reference numbers
+
+```
+
+Parse out the age groups 
+```{r}
+data2 <- data_with_ref %>%
+  # split Target.Audience at "&" and make multiple rows
+  separate_rows(Target.Audience, sep = " *& *")  %>%
+  # optional: trim whitespace
+  mutate(Target.Audience = trimws(Target.Audience))
+```
+
