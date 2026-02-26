@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿Date,Time,Program Description,Attendance,Target Audience,Branch Location
 9/4/2025,10:00,Senior Tech Help,24,Adults,West End
 5/11/2025,15:00,Yoga & Mindfulness,49,Adults,East Side
@@ -39,3 +40,46 @@
 9/7/2025,18:30,Language Exchange,22,Adults,Downtown
 1/18/2025,15:30,Financial Literacy 101,49,Adults,West End
 1/8/2025,10:30,Craft Hour,44,Children (ages 6â€“12),Downtown
+=======
+﻿Date,Time,Program Description,Attendance,Target Audience,Branch Location
+9/4/2025,10:00,Senior Tech Help,24,Adults,West End
+5/11/2025,15:00,Yoga & Mindfulness,49,Adults,East Side
+9/16/2025,10:00,Language Exchange,45,Adults,North Branch
+11/5/2025,10:00,Music Jam Session,13,Teens & Adults,West End
+9/16/2025,12:00,Yoga & Mindfulness,25,Adults,North Branch
+6/11/2025,16:30,Resume Writing Workshop,10,Adults,Downtown
+6/13/2025,16:30,Music Jam Session,33,Teens & Adults,East Side
+2/10/2025,14:00,Art Workshop for Teens,13,Teens,Downtown
+11/3/2025,16:00,Craft Hour,41,Children (ages 6â€“12),West End
+9/9/2025,17:00,Art Workshop for Teens,33,Teens,North Branch
+9/3/2025,19:00,Teen Coding Club,23,Teens (ages 13â€“18),Downtown
+2/11/2025,10:30,Gardening Basics,38,Adults,North Branch
+9/1/2025,14:00,Art Workshop for Teens,46,Teens,North Branch
+3/1/2025,11:00,Resume Writing Workshop,9,Adults,Downtown
+9/4/2025,17:30,Music Jam Session,44,Teens & Adults,West End
+9/14/2025,13:30,Board Game Night,12,Families,West End
+3/3/2025,19:30,Movie Night: Family Feature,36,Families,West End
+2/13/2025,13:00,Craft Hour,32,Children (ages 6â€“12),East Side
+9/13/2025,19:00,STEM for Kids,34,Children (ages 8â€“12),West End
+9/3/2025,11:00,STEM for Kids,50,Children (ages 8â€“12),North Branch
+8/2/2025,19:30,Movie Night: Family Feature,23,Families,Downtown
+11/26/2025,16:30,Language Exchange,16,Adults,Downtown
+11/14/2025,19:30,Storytime for Kids,46,Children (ages 3â€“7),Downtown
+9/8/2025,19:00,Gardening Basics,31,Adults,West End
+6/9/2025,17:00,Local Author Meet & Greet,29,Teens & Adults,East Side
+8/11/2025,10:30,Yoga & Mindfulness,27,Adults,West End
+5/1/2025,14:30,Financial Literacy 101,23,Adults,East Side
+9/12/2025,18:30,Craft Hour,11,Children (ages 6â€“12),Downtown
+7/5/2025,10:30,Gardening Basics,35,Adults,West End
+5/14/2025,18:00,Craft Hour,33,Children (ages 6â€“12),North Branch
+7/7/2025,14:00,Local Author Meet & Greet,49,Adults,West End
+9/8/2025,11:30,Gardening Basics,32,Adults,North Branch
+9/9/2025,12:00,Art Workshop for Teens,16,Teens,East Side
+8/2/2025,16:30,Chess Club,36,Families,East Side
+9/10/2025,16:30,Movie Night: Family Feature,39,Families,West End
+6/5/2025,14:30,Craft Hour,10,Children (ages 6â€“12),North Branch
+4/1/1900,18:00,Chess Club,22,Adults,North Branch
+9/7/2025,18:30,Language Exchange,22,Adults,Downtown
+1/18/2025,15:30,Financial Literacy 101,49,Adults,West End
+1/8/2025,10:30,Craft Hour,44,Children (ages 6â€“12),Downtown
+>>>>>>> c33debae95623d61f497cc2283008893bb3b2c24
