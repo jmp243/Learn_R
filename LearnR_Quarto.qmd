@@ -94,6 +94,9 @@ You can create a little index (or vertex)
 a <- c(2,5,65,43,3)
 ```
 
+```{r}
+a = c(2, 5, 65, 43, 3)
+```
 
 ## you can do some basic stats
 ```{r}
@@ -116,10 +119,10 @@ c <- rbind(a,b) # row bind
 d <- cbind(a,b) # column bind
 ```
 
-Read in data from this URL - https://raw.githubusercontent.com/jmp243/AZLA_2025_Data/refs/heads/main/fake_program_data.csv
+Read in data from this URL - https://raw.githubusercontent.com/jmp243/Learn_R/refs/heads/main/fake_program_data.csv
 
 #### Section 4: Reading in Data ####
-## R users will say unusual things like Tidyverse and ggplot
+#### R users will say unusual things like Tidyverse and ggplot
 ### often we are referring to libraries.
 
 ```{r}
@@ -129,11 +132,11 @@ library(tidyverse)
 
 # read in data using a function from the readr library
 ```{r}
-data <- read.csv("https://raw.githubusercontent.com/jmp243/AZLA_2025_Data/refs/heads/main/fake_program_data.csv")
+data <- read.csv("https://raw.githubusercontent.com/jmp243/Learn_R/refs/heads/main/fake_program_data.csv")
 
 ```
 
-# Data analysis
+# Pre-data analysis
 What type of data are we looking at?
 ```{r}
 head(data)
@@ -150,6 +153,7 @@ A summary is not too helpful when we only have one variable that is an integer.
 ```{r}
 summary(data)
 ```
+
 #### Section 5: Exploratory Data Analysis ####
 ```{r}
 table(data$Branch.Location)
@@ -174,10 +178,10 @@ data2 <- data_with_ref %>%
   separate_rows(Target.Audience, sep = " *& *")  %>%
   # optional: trim whitespace
   mutate(Target.Audience = trimws(Target.Audience))
+
 ```
 
 Create a new column where age distinctions do not matter
-
 ```{r}
 library(stringr)
 
@@ -192,7 +196,7 @@ data2_newAudience <- data2 %>%
 
 look at the time of day when events were happening
 
-### Dates are weird in R and many other computer languages 
+# Dates are weird in R and many other computer languages 
 ```{r}
 library(lubridate)
 # Using rowwise() to parse time
@@ -245,7 +249,6 @@ data2_time$Date <- as.Date(data2_time$Date,format = "%m/%d/%Y")
 ```
 
 #### Section 6: Create Visualizations ####
-
 ```{r}
 library(plotly)
 # Group by hour and count events
@@ -281,9 +284,7 @@ hourly_location_date_summary <- data2_time %>%
 ```
 
 creating a visualization can be helpful.
-
 ## group data by attendance
-
 ```{r}
 # Load required libraries
 library(dplyr)
@@ -338,7 +339,9 @@ fig_date <- plot_ly(
   x = ~Date,
   y = ~Total_Attendance,
   color = ~AudienceGroup,
-  type = "bar"
+  type = "bar",
+  text = ~Total_Attendance,
+  hoverinfo = "text" 
 )
 
 # Customize layout
@@ -367,7 +370,9 @@ fig2 <- plot_ly(
   x = ~hour_label,
   y = ~Total_Attendance,
   color = ~Branch.Location,
-  type = "bar"
+  type = "bar",
+  text = ~Total_Attendance,
+  hoverinfo = "text" 
 )
 
 # Customize layout
