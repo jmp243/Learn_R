@@ -1,10 +1,17 @@
-# Learn_R
+# Learn R
 Title of dataset: fake date for teaching R
 
 Name/institution/contact information for: Jung Mee Park, Wichita State Univ.
 
 Principal Investigator (or person responsible for collecting the data)
 JungMee.Park@wichita.edu
+
+Files in the repository
+
+data - 
+script - 
+README - 
+git ignore 
 
 File name structure
 
