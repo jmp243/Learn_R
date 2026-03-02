@@ -156,7 +156,7 @@ summary(data)
 
 #### Section 5: Exploratory Data Analysis ####
 ```{r}
-table(data$Branch.Location)
+table(data$Branch.Location) # remember this table is not being saved
 ```
 
 Look at other variables that way too.
@@ -186,6 +186,15 @@ Create a new column where age distinctions do not matter
 library(stringr)
 
 data2_newAudience <- data2 %>%
+  mutate(
+    # extract everything before " (" (a space + "(") or just "("
+    Target.Audience = str_trim(
+       str_replace(Target.Audience, "â€“","-")
+    )
+  )
+
+
+data2_newAudience <- data2_newAudience %>%
   mutate(
     # extract everything before " (" (a space + "(") or just "("
     AudienceGroup = str_trim(
@@ -387,21 +396,28 @@ fig2 <- fig2 %>%
 fig2
 ```
 
-## add a date slider
+## remove outlier date 
+```{r}
 
+date3_time <- date2_time %>%
+  mutate(date_corrected = Date > as.Date("2020-01-01"))
+
+```
+
+## add a date slider
 ```{r}
 # Prepare data: make sure Date is in Date format
-plot_data <- data2_time %>%
+plot_data2 <- data3_time %>%
   mutate(
-    Date = as.Date(Date),
+    Date = as.Date(date_corrected),
     hour_group = as.factor(hour_label)
   ) %>%
   group_by(Date, hour_label, AudienceGroup) %>%
   summarise(Total_Attendance = sum(Attendance, na.rm = TRUE), .groups = "drop")
 
 # Build interactive bar chart
-fig <- plot_ly(
-  data = plot_data,
+fig3 <- plot_ly(
+  data = plot_data2,
   x = ~Date,
   y = ~Total_Attendance,
   color = ~AudienceGroup,
@@ -414,7 +430,7 @@ fig <- plot_ly(
 )
 
 # Layout with slider
-fig <- fig %>%
+fig3 <- fig3 %>%
   layout(
     xaxis = list(
       title = "Date",
@@ -433,6 +449,6 @@ fig <- fig %>%
     legend = list(title = list(text = "Audience Group"))
   )
 
-fig
+fig3
 ```
 
