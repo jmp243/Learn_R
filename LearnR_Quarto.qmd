@@ -75,6 +75,7 @@ print("hello world")
 print("hello world")
 ```
 
+
 #### Section 2: Simple uses for R? ####
 ```{r}
 9+12
@@ -126,7 +127,8 @@ Read in data from this URL - https://raw.githubusercontent.com/jmp243/Learn_R/re
 ### often we are referring to libraries.
 
 ```{r}
-library(readr)
+# install.packages("tidyverse")
+
 library(tidyverse)
 ```
 
@@ -153,6 +155,11 @@ A summary is not too helpful when we only have one variable that is an integer.
 ```{r}
 summary(data)
 ```
+# remove duplicate rows
+```{r}
+# Assuming 'df' is your data frame
+data <- data %>% distinct()
+```
 
 #### Section 5: Exploratory Data Analysis ####
 ```{r}
@@ -164,6 +171,7 @@ Look at other variables that way too.
 ```{r}
 table(data$Target.Audience)
 ```
+
 Create an reference number for each event
 ```{r}
 data_with_ref <- data %>%
@@ -176,7 +184,7 @@ Parse out the age groups
 data2 <- data_with_ref %>%
   # split Target.Audience at "&" and make multiple rows
   separate_rows(Target.Audience, sep = " *& *")  %>%
-  # optional: trim whitespace
+  # trim whitespace
   mutate(Target.Audience = trimws(Target.Audience))
 
 ```
@@ -209,38 +217,42 @@ look at the time of day when events were happening
 ```{r}
 library(lubridate)
 # Using rowwise() to parse time
-
 data2_time <- data2_newAudience %>%
-  rowwise() %>%
+  rowwise() %>%              # Treat each row independently for the mutate block below.
   mutate(
-    # Process one row at a time
+    # Process one row at a time; 'time_parsed' will be a POSIXct (or NA)
     time_parsed = {
-      time_str <- Time
+      time_str <- Time       # Pull the 'Time' value for this row
+
+      # 1) If Time is NA or not a character, we cannot parse.
       if (is.na(time_str) || !is.character(time_str)) {
         NA
-      } else if (grepl("AM|PM", time_str, ignore.case = TRUE)) {
-        parse_date_time(time_str, orders = c("I:M p", "H:M p"))
+
+      # 2) If it contains a colon but no AM/PM, assume 24-hour time.
       } else if (grepl(":", time_str, fixed = TRUE)) {
+        # If there are two colons, assume "H:M:S"; else assume "H:M".
         if (length(gregexpr(":", time_str)[[1]]) == 2) {
-          parse_date_time(time_str, orders = "H:M:S")
+          parse_date_time(time_str, orders = "H:M")
         } else {
           parse_date_time(time_str, orders = "H:M")
         }
+
+      # 3) Otherwise, we don't know how to parse this value.
       } else {
         NA
       }
     }
   ) %>%
-  ungroup() %>%
+  ungroup() %>%  # Return to ungrouped (important after rowwise)
   mutate(
-    time_24h = format(time_parsed, "%H:%M:%S"),
-    time_12h = format(time_parsed, "%I:%M:%S %p")
+    # Format the parsed datetime (POSIXct) into strings.
+    # If time_parsed is NA, format() returns NA_character_.
+    time_24h = format(time_parsed, "%H:%M"),     # 24-hour format, zero-padded (e.g., "09:05:00")
+    time_12h = format(time_parsed, "%I:%M %p")   # 12-hour format with AM/PM (e.g., "09:05:00 AM")
   )
-
 ```
 
 group into hours
-
 ```{r}
 # group pits incidents by the hour
 
@@ -257,7 +269,89 @@ data2_time$hour_label <- format(data2_time$hour_group, "%H:00")
 data2_time$Date <- as.Date(data2_time$Date,format = "%m/%d/%Y")
 ```
 
+remove outlier
+```{r}
+data2_time <- data2_time %>% 
+  filter(Date >= 2020)
+```
+
 #### Section 6: Create Visualizations ####
+## create a ggplot
+```{r}
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+library(scales)
+
+# Ensure hour_group exists, else derive it from time_parsed
+df_plot <- data2_time %>%
+  mutate(
+    hour_group = if (!"hour_group" %in% names(.)) floor_date(time_parsed, "hour") else hour_group
+  ) %>%
+  filter(!is.na(hour_group), !is.na(Attendance), !is.na(Branch.Location)) %>%
+  group_by(hour_group, Branch.Location) %>%
+  summarise(Total_Attendance = sum(Attendance, na.rm = TRUE), .groups = "drop")
+
+plot1 <- ggplot(df_plot, 
+                aes(x = hour_group, y = Total_Attendance, fill = Branch.Location)) +
+  geom_col() +
+  scale_x_datetime(date_labels = "%H:00", date_breaks = "1 hour") +
+  scale_y_continuous(labels = label_comma()) +
+  labs(
+    title = "Attendance by Hour (Stacked by Branch Location)",
+    x = "Hour",
+    y = "Total Attendance",
+    fill = "Branch Location"
+  ) +
+  theme_minimal(base_size = 12)
+
+plot1
+```
+### Making an interactive graph
+Create a new graph where the hover will represent the number of attendees per subgroup
+```{r}
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+library(scales)
+library(plotly)
+
+# 1) Aggregate to one row per hour_group x Branch.Location
+df_plot <- data2_time %>%
+  mutate(
+    hour_group = if (!"hour_group" %in% names(.)) floor_date(time_parsed, "hour") else hour_group
+  ) %>%
+  filter(!is.na(hour_group), !is.na(Branch.Location)) %>%
+  group_by(hour_group, Branch.Location) %>%
+  summarise(Total_Attendance = sum(Attendance, na.rm = TRUE), .groups = "drop")
+
+# 2) ggplot with a text aesthetic to feed the tooltip
+p <- ggplot(df_plot, aes(
+  x = hour_group,
+  y = Total_Attendance,
+  fill = Branch.Location,
+  text = paste0(
+    # "Hour: ", format(hour_group, "%Y-%m-%d %H:00"), "\n",
+    "Branch: ", Branch.Location, "\n",
+    "Attendees: ", scales::comma(Total_Attendance)
+  )
+)) +
+  geom_col() +
+  scale_x_datetime(date_labels = "%H:00", date_breaks = "1 hour") +
+  scale_y_continuous(labels = label_comma()) +
+  labs(
+    title = "Attendance by Hour (Stacked by Branch Location)",
+    x = "Hour",
+    y = "Total Attendance",
+    fill = "Branch Location"
+  ) +
+  theme_minimal(base_size = 12)
+
+# 3) Convert to interactive and show only our custom text
+ggplotly(p, tooltip = "text")
+```
+
+
 ```{r}
 library(plotly)
 # Group by hour and count events
@@ -311,7 +405,9 @@ fig <- plot_ly(
   x = ~hour_label,
   y = ~Total_Attendance,
   color = ~AudienceGroup,
-  type = "bar"
+  type = "bar",  
+  text = ~Total_Attendance,
+  hoverinfo = "text" 
 )
 
 # Customize layout
@@ -327,15 +423,12 @@ fig
 ```
 
 ### change x-axis to dates
-
 ```{r}
 # Load required libraries
 library(dplyr)
 library(plotly)
 
 # Aggregate attendance by hour_group and AudienceGroup
-data2_time <- data2_time %>% 
-  filter(Date >= 2025)
 
 plot_data <- data2_time %>%
   mutate(hour_label = as.factor(hour_label)) %>%
@@ -396,13 +489,6 @@ fig2 <- fig2 %>%
 fig2
 ```
 
-## remove outlier date 
-```{r}
-
-date3_time <- date2_time %>%
-  mutate(date_corrected = Date > as.Date("2020-01-01"))
-
-```
 
 ## add a date slider
 ```{r}
