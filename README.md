@@ -6,7 +6,7 @@ Name/institution/contact information for: Jung Mee Park, Wichita State Univ.
 Principal Investigator (or person responsible for collecting the data)
 JungMee.Park@wichita.edu
 
-Files in the repository
+## Files in the repository
 
 data - fake_program_data.csv
 
@@ -17,7 +17,7 @@ README - README.md
 git ignore - .gitignore
 
 
-File name structure
+## File name structure
 
 Structure: Provide the template you are using for your filenames
 I am using _ spaces to describe the files.
@@ -33,7 +33,6 @@ be aware of the potential risk of the loss or corruption of your data and take
 appropriate steps to avoid/minimize it
 
 File Format Examples: .qmd, .md, .csv
-
 
 Numbers/statistics: ASCII
 
