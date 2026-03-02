@@ -9,9 +9,13 @@ JungMee.Park@wichita.edu
 Files in the repository
 
 data - fake_program_data.csv
+
 script - LearnR_Quarto.qmd
+
 README - README.md
+
 git ignore - .gitignore
+
 
 File name structure
 
