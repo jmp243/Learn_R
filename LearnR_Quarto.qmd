@@ -493,9 +493,8 @@ fig2
 ## add a date slider
 ```{r}
 # Prepare data: make sure Date is in Date format
-plot_data2 <- data3_time %>%
+plot_data2 <- data2_time %>%
   mutate(
-    Date = as.Date(date_corrected),
     hour_group = as.factor(hour_label)
   ) %>%
   group_by(Date, hour_label, AudienceGroup) %>%
@@ -537,4 +536,5 @@ fig3 <- fig3 %>%
 
 fig3
 ```
+
 
