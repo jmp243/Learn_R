@@ -172,14 +172,15 @@ Look at other variables that way too.
 table(data$Target.Audience)
 ```
 
-Create an reference number for each event
+
+Parse out the age groups Create an reference number for each event
 ```{r}
 data_with_ref <- data %>%
   mutate(Reference_Number = row_number()) # create a new dataframe and add reference numbers
 
 ```
 
-Parse out the age groups 
+
 ```{r}
 data2 <- data_with_ref %>%
   # split Target.Audience at "&" and make multiple rows
@@ -277,6 +278,10 @@ data2_time <- data2_time %>%
 
 #### Section 6: Create Visualizations ####
 ## create a ggplot
+### the ggplot format is 
+Faded examples = fill in the blanks, 
+e.g.: ggplot(data = ___, mapping = aes(x = ___, y = ___)) + geom_*() + 
+
 ```{r}
 library(dplyr)
 library(ggplot2)
@@ -495,6 +500,7 @@ fig2
 # Prepare data: make sure Date is in Date format
 plot_data2 <- data2_time %>%
   mutate(
+    # Date = as.Date(date_corrected),
     hour_group = as.factor(hour_label)
   ) %>%
   group_by(Date, hour_label, AudienceGroup) %>%
@@ -536,5 +542,4 @@ fig3 <- fig3 %>%
 
 fig3
 ```
-
 
