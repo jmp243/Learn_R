@@ -1,0 +1,511 @@
+---
+title: "LearnR_March3"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+##### Section 1: What is R?
+
+### A free open-source software capable of statistical analysis and graphical displays.
+
+## R programming language is case-sensitive which means L and l are read as different characters. 
+R is a fancy calculator. Before we get started read up on R shortcuts. https://support.posit.co/hc/en-us/articles/200711853-Keyboard-Shortcuts-in-the-RStudio-IDE
+
+## Comparable Software Programming to R
+
+MATLAB - Programming language with statistical features
+
+Mathematica - A software package with statistical feature
+
+SAS - Comprehensible statistical software package
+
+SPSS (Statistical Package for Social Sciences) - Comprehensible statistical package
+
+Python - Programming language with data science packages
+
+```{r}
+print("hello world")
+```
+
+
+```{python}
+print("hello world")
+
+```
+
+#### Section 2: Simple uses for R? ####
+```{r}
+38721-4320
+```
+
+
+```{r}
+43*34+(4/3)-12
+```
+
+```{r}
+print(29+1)
+```
+#### Section 3: Strengths of R in creating indices ####
+You can create a little index (or vertex)
+```{r}
+a <- c(2,5,65,43,3)
+```
+
+```{r}
+a = c(2, 5, 65, 43, 3)
+```
+
+## you can do some basic stats
+```{r}
+mean(a)
+```
+```{r}
+sd(a)
+```
+
+# in R, integers are only whole numbers
+```{r}
+b <- c(1:5)
+#b <- as.numeric(b)
+```
+
+### creating a matrix 
+```{r}
+c <- rbind(a,b) # row bind
+d <- cbind(a,b) # column bind
+```
+
+
+#### Section 4: Reading in Data ####
+#### R users will say unusual things like Tidyverse and ggplot
+### often we are referring to libraries.
+
+```{r}
+# install.packages("tidyverse")
+library(tidyverse)
+```
+# read in data using a function from the readr library
+```{r}
+data <- read.csv("https://raw.githubusercontent.com/jmp243/Learn_R/refs/heads/main/fake_program_data.csv")
+```
+
+# Pre-data analysis
+What type of data are we looking at?
+```{r}
+head(data)
+```
+
+
+```{r}
+cls <- sapply(data, class)
+cls <- as.data.frame(cls)
+cls
+```
+
+A summary is not too helpful when we only have one variable that is an integer.
+```{r}
+summary(data)
+```
+
+# remove duplicate rows
+```{r}
+data <- data %>% 
+  distinct()
+```
+
+#### Section 5: Exploratory Data Analysis ####
+```{r}
+table(data$Branch.Location) # remember this table is not being saved
+```
+Look at other variables that way too.
+```{r}
+AudienceTable <- table(data$Target.Audience)
+AudienceTable
+```
+Create an reference number for each event
+```{r}
+data_with_ref <- data %>%
+  mutate(Reference_Number = row_number()) # create a new dataframe and add reference numbers
+  # mutate(newVar = manipulation)
+```
+
+```{r}
+data2 <- data_with_ref %>%
+  # split Target.Audience at "&" and make multiple rows
+  separate_rows(Target.Audience, sep = " *& *")  %>%
+  # trim whitespace
+  mutate(Target.Audience = trimws(Target.Audience))
+```
+
+Create a new column where age distinctions do not matter
+```{r}
+library(stringr)
+
+data2_newAudience <- data2 %>%
+  mutate(
+    # extract everything before " (" (a space + "(") or just "("
+    Target.Audience = str_trim(
+       str_replace(Target.Audience, "â€“","-")
+    )
+  )
+
+
+data2_newAudience <- data2_newAudience %>%
+  mutate(
+    # extract everything before " (" (a space + "(") or just "("
+    AudienceGroup = str_trim(
+       str_replace(Target.Audience, "\\s*\\(.*", "")
+    )
+  )
+```
+
+# Dates are weird in R and many other computer languages 
+```{r}
+library(lubridate)
+# Using rowwise() to parse time
+data2_time <- data2_newAudience %>%
+  rowwise() %>%              # Treat each row independently for the mutate block below.
+  mutate(
+    # Process one row at a time; 'time_parsed' will be a POSIXct (or NA)
+    time_parsed = {
+      time_str <- Time       # Pull the 'Time' value for this row
+
+      # 1) If Time is NA or not a character, we cannot parse.
+      if (is.na(time_str) || !is.character(time_str)) {
+        NA
+      # 2) If it contains a colon but no AM/PM, assume 24-hour time.
+      } else if (grepl(":", time_str, fixed = TRUE)) {
+        # If there are two colons, assume "H:M:S"; else assume "H:M".
+        if (length(gregexpr(":", time_str)[[1]]) == 2) {
+          parse_date_time(time_str, orders = "H:M")
+        } else {
+          parse_date_time(time_str, orders = "H:M")
+        }
+
+      # 3) Otherwise, we don't know how to parse this value.
+      } else {
+        NA
+      }
+    }
+  ) %>%
+  ungroup() %>%  # Return to ungrouped (important after rowwise)
+  mutate(
+    # Format the parsed datetime (POSIXct) into strings.
+    # If time_parsed is NA, format() returns NA_character_.
+    time_24h = format(time_parsed, "%H:%M"),     # 24-hour format, zero-padded (e.g., "09:05:00")
+    time_12h = format(time_parsed, "%I:%M %p")   # 12-hour format with AM/PM (e.g., "09:05:00 AM")
+  )
+```
+
+group into hours
+```{r}
+# group pits incidents by the hour
+
+# Group by hour
+data2_time$hour_group <- floor_date(data2_time$time_parsed, 
+                                               unit = "hour")
+data2_time$hour_label <- format(data2_time$hour_group, "%H:00")
+
+```
+
+# fix dates
+```{r}
+data2_time$Date <- as.Date(data2_time$Date,format = "%m/%d/%Y")
+```
+
+remove outlier
+```{r}
+data2_time <- data2_time %>% 
+  filter(Date >= 2020)
+```
+
+
+#### Section 6: Create Visualizations ####
+## create a ggplot
+### the ggplot format is 
+Faded examples = fill in the blanks, 
+e.g.: ggplot(data = ___, mapping = aes(x = ___, y = ___)) + geom_*() 
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+library(scales)
+
+# Ensure hour_group exists, else derive it from time_parsed
+df_plot <- data2_time %>%
+  mutate(
+    hour_group = if (!"hour_group" %in% names(.)) floor_date(time_parsed, "hour") else hour_group
+  ) %>%
+  filter(!is.na(hour_group), !is.na(Attendance), !is.na(Branch.Location)) %>%
+  group_by(hour_group, Branch.Location) %>%
+  summarise(Total_Attendance = sum(Attendance, na.rm = TRUE), .groups = "drop")
+
+plot1 <- ggplot(df_plot, 
+                aes(x = hour_group, y = Total_Attendance, fill = Branch.Location)) +
+  geom_col() +
+  scale_x_datetime(date_labels = "%H:00", date_breaks = "1 hour") +
+  scale_y_continuous(labels = label_comma()) +
+  labs(
+    title = "Attendance by Hour (Stacked by Branch Location)",
+    x = "Hour",
+    y = "Total Attendance",
+    fill = "Branch Location"
+  ) +
+  theme_minimal(base_size = 12)
+
+plot1
+```
+
+### Making an interactive graph
+Create a new graph where the hover will represent the number of attendees per subgroup
+```{r}
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+library(scales)
+library(plotly)
+
+# 1) Aggregate to one row per hour_group x Branch.Location
+df_plot <- data2_time %>%
+  mutate(
+    hour_group = if (!"hour_group" %in% names(.)) floor_date(time_parsed, "hour") else hour_group
+  ) %>%
+  filter(!is.na(hour_group), !is.na(Branch.Location)) %>%
+  group_by(hour_group, Branch.Location) %>%
+  summarise(Total_Attendance = sum(Attendance, na.rm = TRUE), .groups = "drop")
+
+# 2) ggplot with a text aesthetic to feed the tooltip
+p <- ggplot(df_plot, aes(
+  x = hour_group,
+  y = Total_Attendance,
+  fill = Branch.Location,
+  text = paste0(
+    # "Hour: ", format(hour_group, "%Y-%m-%d %H:00"), "\n",
+    "Branch: ", Branch.Location, "\n",
+    "Attendees: ", scales::comma(Total_Attendance)
+  )
+)) +
+  geom_col() +
+  scale_x_datetime(date_labels = "%H:00", date_breaks = "1 hour") +
+  scale_y_continuous(labels = label_comma()) +
+  labs(
+    title = "Attendance by Hour (Stacked by Branch Location)",
+    x = "Hour",
+    y = "Total Attendance",
+    fill = "Branch Location"
+  ) +
+  theme_minimal(base_size = 12)
+
+# 3) Convert to interactive and show only our custom text
+ggplotly(p, tooltip = "text")
+```
+
+
+```{r}
+library(plotly)
+# Group by hour and count events
+hourly_summary <- data2_time %>%
+  select(hour_label, Branch.Location, Attendance, time_parsed, Date) %>%
+  # mutate(hour_group = floor_date(time_parsed, unit = "hour")) %>%
+  group_by(hour_label) %>%
+  summarize(
+    Total_Hourly_Count = n(),
+    # other aggregate metrics as needed
+  )
+
+```
+
+
+```{r}
+hourly_location_date_summary <- data2_time %>%
+  select(hour_label, hour_group, Attendance, AudienceGroup, Branch.Location, time_parsed, Date) %>%
+  # Group by date as well as hour and location
+  group_by(Date, hour_label, AudienceGroup, Branch.Location, Attendance) %>%
+  summarize(
+    count = n(),
+    .groups = "drop"
+  ) %>%
+  # Create a wide format with Location combinations as columns
+  pivot_wider(
+    id_cols = c(Date, hour_label),  # Keep Date2 as an identifier column
+    names_from = AudienceGroup,
+    values_from = Attendance,
+    values_fill = 0
+  )
+```
+
+creating a visualization can be helpful.
+## group data by attendance
+```{r}
+# Load required libraries
+library(dplyr)
+library(plotly)
+
+# Aggregate attendance by hour_group and AudienceGroup
+plot_data <- data2_time %>%
+  mutate(hour_group = as.factor(hour_label)) %>%
+  group_by(hour_label, AudienceGroup) %>%
+  summarise(Total_Attendance = sum(Attendance, na.rm = TRUE), .groups = "drop")
+
+# Create interactive bar chart
+fig <- plot_ly(
+  data = plot_data,
+  x = ~hour_label,
+  y = ~Total_Attendance,
+  color = ~AudienceGroup,
+  type = "bar",  
+  text = ~Total_Attendance,
+  hoverinfo = "text" 
+)
+
+# Customize layout
+fig <- fig %>%
+  layout(
+    barmode = "stack",   # or "group" if you want side-by-side
+    xaxis = list(title = "Hour Label"),
+    yaxis = list(title = "Total Attendance"),
+    legend = list(title = list(text = "Audience Group"))
+  )
+
+fig
+```
+
+### change x-axis to dates
+```{r}
+# Load required libraries
+library(dplyr)
+library(plotly)
+
+# Aggregate attendance by hour_group and AudienceGroup
+
+plot_data <- data2_time %>%
+  mutate(hour_label = as.factor(hour_label)) %>%
+  group_by(Date, AudienceGroup) %>%
+  summarise(Total_Attendance = sum(Attendance, na.rm = TRUE), .groups = "drop")
+
+# Create interactive bar chart
+fig_date <- plot_ly(
+  data = plot_data,
+  x = ~Date,
+  y = ~Total_Attendance,
+  color = ~AudienceGroup,
+  type = "bar",
+  text = ~Total_Attendance,
+  hoverinfo = "text" 
+)
+
+# Customize layout
+fig_date <- fig_date %>%
+  layout(
+    barmode = "stack",   # or "group" if you want side-by-side
+    xaxis = list(title = "Date"),
+    yaxis = list(title = "Total Attendance"),
+    legend = list(title = list(text = "Audience Group"))
+  )
+
+fig_date
+```
+
+## by branch type data graph
+
+```{r}
+# Aggregate attendance by hour_group and AudienceGroup
+branch_data <- data2_time %>%
+  group_by(hour_label, Branch.Location) %>%
+  summarise(Total_Attendance = sum(Attendance, na.rm = TRUE), .groups = "drop")
+
+# Create interactive bar chart
+fig2 <- plot_ly(
+  data = branch_data,
+  x = ~hour_label,
+  y = ~Total_Attendance,
+  color = ~Branch.Location,
+  type = "bar",
+  text = ~Total_Attendance,
+  hoverinfo = "text" 
+)
+
+# Customize layout
+fig2 <- fig2 %>%
+  layout(
+    barmode = "stack",   # or "group" if you want side-by-side
+    xaxis = list(title = "Hour Label"),
+    yaxis = list(title = "Total Attendance"),
+    legend = list(title = list(text = "Branch Location"))
+  )
+
+fig2
+```
+
+## add a date slider
+```{r}
+# Prepare data: make sure Date is in Date format
+plot_data2 <- data2_time %>%
+  mutate(
+    # Date = as.Date(date_corrected),
+    hour_group = as.factor(hour_label)
+  ) %>%
+  group_by(Date, hour_label, AudienceGroup) %>%
+  summarise(Total_Attendance = sum(Attendance, na.rm = TRUE), .groups = "drop")
+
+# Build interactive bar chart
+fig3 <- plot_ly(
+  data = plot_data2,
+  x = ~Date,
+  y = ~Total_Attendance,
+  color = ~AudienceGroup,
+  type = "bar",
+  hoverinfo = "text",
+  text = ~paste("Date:", Date,
+                "<br>Hour:", hour_label,
+                "<br>Audience:", AudienceGroup,
+                "<br>Attendance:", Total_Attendance)
+)
+
+# Layout with slider
+fig3 <- fig3 %>%
+  layout(
+    xaxis = list(
+      title = "Date",
+      rangeselector = list(
+        buttons = list(
+          list(count = 7, label = "1w", step = "day", stepmode = "backward"),
+          list(count = 1, label = "1m", step = "month", stepmode = "backward"),
+          list(step = "all")
+        )
+      ),
+      rangeslider = list(visible = TRUE),
+      type = "date"
+    ),
+    yaxis = list(title = "Total Attendance"),
+    barmode = "stack",
+    legend = list(title = list(text = "Audience Group"))
+  )
+
+fig3
+```
