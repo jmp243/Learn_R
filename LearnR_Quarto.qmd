@@ -43,7 +43,6 @@ SPSS (Statistical Package for Social Sciences) - Comprehensible statistical pack
 
 Python - Programming language with data science packages
 
-
 ```{python}
 import pandas as pd
 
@@ -70,13 +69,12 @@ print("hello world")
 
 ```
 
-
 ```{r}
 print("hello world")
 ```
 
+#### Section 2: Simple uses for R?
 
-#### Section 2: Simple uses for R? ####
 ```{r}
 9+12
 ```
@@ -89,8 +87,40 @@ print("hello world")
 print(29+1)
 ```
 
-#### Section 3: Strengths of R in creating indices ####
+#### Section 3: Strengths of R in creating indices
+
 You can create a little index (or vertex)
+
+
+```{r}
+hh_members <- c(3, 7, 10, 6)
+hh_members
+
+```
+
+
+```{r}
+length(hh_members)
+```
+
+### conditional subsetting
+```{r}
+hh_members <- c(3, 7, 10, 6)
+hh_members[c(TRUE, FALSE, TRUE, TRUE)]
+```
+### other conditions 
+```{r}
+## so we can use this to select only the values above 5
+hh_members[hh_members > 5]
+```
+
+```{r}
+hh_members[hh_members < 4 | hh_members > 7]
+```
+
+
+## you can do some basic stats
+
 ```{r}
 a <- c(2,5,65,43,3)
 ```
@@ -99,7 +129,7 @@ a <- c(2,5,65,43,3)
 a = c(2, 5, 65, 43, 3)
 ```
 
-## you can do some basic stats
+
 ```{r}
 mean(a)
 ```
@@ -109,12 +139,14 @@ sd(a)
 ```
 
 # in R, integers are only whole numbers
+
 ```{r}
 b <- c(1:5)
 #b <- as.numeric(b)
 ```
 
-### creating a matrix 
+### creating a matrix
+
 ```{r}
 c <- rbind(a,b) # row bind
 d <- cbind(a,b) # column bind
@@ -122,8 +154,10 @@ d <- cbind(a,b) # column bind
 
 Read in data from this URL - https://raw.githubusercontent.com/jmp243/Learn_R/refs/heads/main/fake_program_data.csv
 
-#### Section 4: Reading in Data ####
+#### Section 4: Reading in Data
+
 #### R users will say unusual things like Tidyverse and ggplot
+
 ### often we are referring to libraries.
 
 ```{r}
@@ -133,15 +167,26 @@ library(tidyverse)
 ```
 
 # read in data using a function from the readr library
+
 ```{r}
 data <- read.csv("https://raw.githubusercontent.com/jmp243/Learn_R/refs/heads/main/fake_program_data.csv")
 
 ```
 
 # Pre-data analysis
+
 What type of data are we looking at?
+
 ```{r}
 head(data)
+```
+
+```{r}
+summary(data)
+```
+
+```{r}
+glimpse(data)
 ```
 
 
@@ -152,16 +197,20 @@ cls
 ```
 
 A summary is not too helpful when we only have one variable that is an integer.
+
 ```{r}
 summary(data)
 ```
+
 # remove duplicate rows
+
 ```{r}
 # Assuming 'df' is your data frame
 data <- data %>% distinct()
 ```
 
-#### Section 5: Exploratory Data Analysis ####
+#### Section 5: Exploratory Data Analysis
+
 ```{r}
 table(data$Branch.Location) # remember this table is not being saved
 ```
@@ -172,14 +221,13 @@ Look at other variables that way too.
 table(data$Target.Audience)
 ```
 
-
 Parse out the age groups Create an reference number for each event
+
 ```{r}
 data_with_ref <- data %>%
   mutate(Reference_Number = row_number()) # create a new dataframe and add reference numbers
 
 ```
-
 
 ```{r}
 data2 <- data_with_ref %>%
@@ -191,6 +239,7 @@ data2 <- data_with_ref %>%
 ```
 
 Create a new column where age distinctions do not matter
+
 ```{r}
 library(stringr)
 
@@ -214,7 +263,8 @@ data2_newAudience <- data2_newAudience %>%
 
 look at the time of day when events were happening
 
-# Dates are weird in R and many other computer languages 
+# Dates are weird in R and many other computer languages
+
 ```{r}
 library(lubridate)
 # Using rowwise() to parse time
@@ -254,6 +304,7 @@ data2_time <- data2_newAudience %>%
 ```
 
 group into hours
+
 ```{r}
 # group pits incidents by the hour
 
@@ -271,16 +322,19 @@ data2_time$Date <- as.Date(data2_time$Date,format = "%m/%d/%Y")
 ```
 
 remove outlier
+
 ```{r}
 data2_time <- data2_time %>% 
   filter(Date >= 2020)
 ```
 
-#### Section 6: Create Visualizations ####
+#### Section 6: Create Visualizations
+
 ## create a ggplot
-### the ggplot format is 
-Faded examples = fill in the blanks, 
-e.g.: ggplot(data = ___, mapping = aes(x = ___, y = ___)) + geom_*() + 
+
+### the ggplot format is
+
+Faded examples = fill in the blanks, e.g.: ggplot(data = ***, mapping = aes(x =*** , y = \_\_*)) + geom*\*() +
 
 ```{r}
 library(dplyr)
@@ -312,8 +366,11 @@ plot1 <- ggplot(df_plot,
 
 plot1
 ```
+
 ### Making an interactive graph
+
 Create a new graph where the hover will represent the number of attendees per subgroup
+
 ```{r}
 library(dplyr)
 library(ggplot2)
@@ -356,7 +413,6 @@ p <- ggplot(df_plot, aes(
 ggplotly(p, tooltip = "text")
 ```
 
-
 ```{r}
 library(plotly)
 # Group by hour and count events
@@ -391,8 +447,8 @@ hourly_location_date_summary <- data2_time %>%
   )
 ```
 
-creating a visualization can be helpful.
-## group data by attendance
+creating a visualization can be helpful. \## group data by attendance
+
 ```{r}
 # Load required libraries
 library(dplyr)
@@ -428,6 +484,7 @@ fig
 ```
 
 ### change x-axis to dates
+
 ```{r}
 # Load required libraries
 library(dplyr)
@@ -494,8 +551,8 @@ fig2 <- fig2 %>%
 fig2
 ```
 
-
 ## add a date slider
+
 ```{r}
 # Prepare data: make sure Date is in Date format
 plot_data2 <- data2_time %>%
@@ -542,4 +599,3 @@ fig3 <- fig3 %>%
 
 fig3
 ```
-
